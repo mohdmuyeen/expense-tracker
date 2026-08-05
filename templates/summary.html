@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary — Expense Tracker</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f0f2f5;
+            color: #262651;
+            min-height: 100vh;
+            padding: 32px 16px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* ── Header ── */
+        header {
+            background: linear-gradient(135deg, #06063d 0%, #070747 100%);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        /* ── Nav ── */
+        nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        nav a {
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.2s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ── Card ── */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            padding: 14px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .card-header-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #6e6e73;
+        }
+
+        .month-picker {
+            padding: 6px 32px 6px 12px;
+            border: 1.5px solid #e5e5e7;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1d1d1f;
+            background: #fafafa;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .month-picker:focus {
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
+        }
+
+        .period-label {
+            font-size: 0.78rem;
+            color: #8e8e93;
+            font-weight: 500;
+        }
+
+        /* ── Table ── */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 13px 24px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #6e6e73;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: left;
+        }
+
+        tbody tr {
+            transition: background 0.15s;
+        }
+
+        tbody tr:hover {
+            background: #f7f9ff;
+        }
+
+        tbody td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f5f5f7;
+            font-size: 0.9rem;
+            color: #3a3a3c;
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Category badge */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #f0f4ff;
+            color: #3478f6;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* Amount */
+        .amount {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        /* Progress bar cell */
+        .bar-cell {
+            width: 45%;
+            min-width: 120px;
+        }
+
+        .bar-track {
+            background: #f0f2f5;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #007aff 0%, #34aadc 100%);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar-pct {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: #8e8e93;
+            margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Grand Total row ── */
+        .total-row {
+            padding: 16px 24px;
+            background: #fafafa;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .total-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6e6e73;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .total-amount {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 52px 24px;
+            color: #8e8e93;
+        }
+
+        .empty-state .icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header>
+            <h1>📊 Summary</h1>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/summary" class="active">Summary</a>
+            </nav>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-header-title">Spending by Category</span>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="period-label" id="period-label"></span>
+                    <select class="month-picker" id="month-picker">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Total</th>
+                            <th class="bar-cell">Breakdown</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-tbody">
+                        <tr>
+                            <td colspan="3" style="text-align:center; color:#8e8e93; padding:32px;">
+                                Loading…
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="total-row" id="total-row" style="display:none;">
+                <span class="total-label">Total</span>
+                <span class="total-amount" id="total-amount">₹0.00</span>
+            </div>
+
+            <div class="empty-state" id="empty-state" style="display:none;">
+                <div class="icon">📭</div>
+                <p>No expenses for this month. Head to <a href="/">Home</a> to add some.</p>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        var MONTHS = ['January','February','March','April','May','June',
+                      'July','August','September','October','November','December'];
+
+        var picker     = document.getElementById('month-picker');
+        var tbody      = document.getElementById('summary-tbody');
+        var totalRow   = document.getElementById('total-row');
+        var totalAmt   = document.getElementById('total-amount');
+        var emptyState = document.getElementById('empty-state');
+        var periodLbl  = document.getElementById('period-label');
+
+        var now  = new Date();
+        var year = now.getFullYear();
+
+        picker.value = now.getMonth() + 1;
+
+        function fetchSummary(month) {
+            periodLbl.textContent = MONTHS[month - 1] + ' ' + year;
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#8e8e93;padding:32px;">Loading…</td></tr>';
+            totalRow.style.display   = 'none';
+            emptyState.style.display = 'none';
+
+            fetch('/api/summary?month=' + month + '&year=' + year)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data.rows.length) {
+                        tbody.innerHTML      = '';
+                        emptyState.style.display = 'block';
+                        return;
+                    }
+                    var grand = data.total;
+                    tbody.innerHTML = data.rows.map(function(r) {
+                        var pct = grand > 0 ? Math.round(r.total / grand * 100) : 0;
+                        return '<tr>' +
+                            '<td><span class="badge">' + r.category + '</span></td>' +
+                            '<td class="amount">₹' + r.total.toFixed(2) + '</td>' +
+                            '<td class="bar-cell">' +
+                                '<div class="bar-track">' +
+                                    '<div class="bar-fill" style="width:' + pct + '%"></div>' +
+                                '</div>' +
+                                '<div class="bar-pct">' + pct + '%</div>' +
+                            '</td>' +
+                        '</tr>';
+                    }).join('');
+                    totalAmt.textContent   = '₹' + grand.toFixed(2);
+                    totalRow.style.display = 'flex';
+                });
+        }
+
+        fetchSummary(parseInt(picker.value));
+        picker.addEventListener('change', function() {
+            fetchSummary(parseInt(this.value));
+        });
+    </script>
+</body>
+</html>

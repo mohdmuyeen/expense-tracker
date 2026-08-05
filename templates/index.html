@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f0f2f5;
+            color: #262651;
+            min-height: 100vh;
+            padding: 32px 16px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* ── Header ── */
+        header {
+            background: linear-gradient(135deg, #06063d 0%, #070747 100%);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        /* ── Nav ── */
+        nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        nav a {
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.2s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ── Add Expense Card ── */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #6e6e73;
+        }
+
+        form {
+            padding: 20px 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .field label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #8e8e93;
+        }
+
+        input {
+            padding: 10px 14px;
+            border: 1.5px solid #e5e5e7;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #1d1d1f;
+            background: #fafafa;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: #007aff;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
+        }
+
+        input::placeholder {
+            color: #c7c7cc;
+        }
+
+        select {
+            padding: 10px 14px;
+            border: 1.5px solid #e5e5e7;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #1d1d1f;
+            background: #fafafa;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: #007aff;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
+        }
+
+        .btn-submit {
+            background: #007aff;
+            color: #fff;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
+            align-self: end;
+        }
+
+        .btn-submit:hover  { background: #0051d5; }
+        .btn-submit:active { transform: scale(0.97); }
+
+        /* ── Table ── */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 13px 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #6e6e73;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: left;
+        }
+
+        tbody tr {
+            transition: background 0.15s;
+        }
+
+        tbody tr:hover {
+            background: #f7f9ff;
+        }
+
+        tbody td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f5f5f7;
+            font-size: 0.9rem;
+            color: #3a3a3c;
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Amount column */
+        .amount {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        /* Category badge */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #f0f4ff;
+            color: #3478f6;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* Delete link */
+        .delete {
+            color: #c7c7cc;
+            text-decoration: none;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: color 0.2s, background 0.2s;
+            display: inline-block;
+        }
+
+        .delete:hover {
+            color: #ff3b30;
+            background: #fff1f0;
+        }
+
+        /* ── Footer / Total ── */
+        .total-row {
+            padding: 16px 24px;
+            background: #fafafa;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .total-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6e6e73;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .total-amount {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 52px 24px;
+            color: #8e8e93;
+        }
+
+        .empty-state .icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header>
+            <h1>💰 Expense Tracker</h1>
+            <nav>
+                <a href="/" class="active">Home</a>
+                <a href="/summary">Summary</a>
+            </nav>
+        </header>
+
+        <!-- Add Expense -->
+        <div class="card">
+            <div class="card-header">Add Expense</div>
+            <form action="/add" method="POST">
+                <div class="field">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date">
+                </div>
+                <div class="field">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="" disabled selected>Select category</option>
+                        <option value="Food">Food</option>
+                        <option value="Groceries">Groceries</option>
+                        <option value="Fuel">Fuel</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Electricity">Electricity</option>
+                        <option value="Water Bill">Water Bill</option>
+                        <option value="Internet">Internet</option>
+                        <option value="Mobile Recharge">Mobile Recharge</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Auto">Auto</option>
+                        <option value="Education">Education</option>
+                        <option value="Medical">Medical</option>
+                        <option value="House Maintenance">House Maintenance</option>
+                        <option value="EMI">EMI</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Charity">Charity</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Quarbani">Quarbani</option>
+                        <option value="Iftar">Iftar</option>
+                        <option value="Vehicle Service">Vehicle Service</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" step="0.01" name="amount" placeholder="0.00" required>
+                </div>
+                <div class="field">
+                    <label for="pmtmethod">Payment Method</label>
+                    <select id="pmtmethod" name="pmtmethod" required>
+                        <option value="" disabled selected>Select payment method</option>
+                        <option value="Card">Card</option>
+                        <option value="Gpay">Gpay</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" placeholder="Optional note">
+                </div>
+                <button type="submit" class="btn-submit">+ Add</button>
+            </form>
+        </div>
+
+        <!-- Expenses Table -->
+        <div class="card">
+            {% if expenses %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Description</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in expenses %}
+                        <tr>
+                            <td>{{ e["date"] }}</td>
+                            <td><span class="badge">{{ e["category"] }}</span></td>
+                            <td class="amount">₹{{ "%.2f"|format(e["amount"]) }}</td>
+                            <td>{{ e["pmtmethod"] }}</td>
+                            <td>{{ e["description"] }}</td>
+                            <td>
+                                <a class="delete"
+                                   href="/delete/{{ e['id'] }}"
+                                   onclick="return confirm('Delete this expense?')"
+                                   title="Delete">✕</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="total-row">
+                <span class="total-label">Total</span>
+                <span class="total-amount">₹{{ "%.2f"|format(total) }}</span>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="icon">🧾</div>
+                <p>No expenses yet. Add one above to get started!</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>
