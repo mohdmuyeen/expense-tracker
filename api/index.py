@@ -7,7 +7,9 @@ from datetime import datetime
 
 load_dotenv()
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
 
 supabase: Client = create_client(
     os.environ["SUPABASE_URL"],
